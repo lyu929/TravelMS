@@ -166,7 +166,7 @@ https://travel-ms-swe.vercel.app/
 - Haolin Lyu
 
 ## Repository
-https://github.com/2u5hi/TravelMS_
+https://github.com/2u5hi/TravelMS_SWE
 
 ## Conclusion
 The Travel Management System is a fully implemented and deployed full-stack application demonstrating integrated frontend, backend, and database functionality while satisfying project requirements.
