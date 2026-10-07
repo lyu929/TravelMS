@@ -1,0 +1,74 @@
+@if (auth.isLoggedIn) {
+  <div class="app-layout">
+    <aside class="sidebar">
+      <a class="brand" routerLink="/dashboard" aria-label="Waypoint home"
+        ><span class="brand-mark"><app-icon name="compass" /></span>waypoint<span
+          class="brand-period"
+          >.</span
+        ></a
+      >
+      <div class="workspace-label">YOUR WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <a routerLink="/dashboard" routerLinkActive="active"
+          ><app-icon name="dashboard" /><span>Overview</span></a
+        >
+        <a routerLink="/trips" routerLinkActive="active"
+          ><app-icon name="trips" /><span>Trips</span></a
+        >
+        <a routerLink="/expenses" routerLinkActive="active"
+          ><app-icon name="expenses" /><span>Expenses</span></a
+        >
+        <a routerLink="/reports" routerLinkActive="active"
+          ><app-icon name="reports" /><span>Reports</span></a
+        >
+        @if (auth.isAdmin) {
+          <a routerLink="/users" routerLinkActive="active"
+            ><app-icon name="users" /><span>People</span></a
+          >
+        }
+        <a routerLink="/settings" routerLinkActive="active"
+          ><app-icon name="settings" /><span>Settings</span></a
+        >
+      </nav>
+      <div class="sidebar-note">
+        <app-icon name="leaf" />
+        <h3>Make space for the journey.</h3>
+        <p>All your plans and expenses, thoughtfully organized.</p>
+        <span>PERSONAL EDITION · 01</span>
+      </div>
+      <div class="sidebar-bottom">
+        <app-avatar [user]="auth.user" />
+        <div>
+          <strong>{{ auth.user?.first_name }}</strong
+          ><small>{{ auth.isAdmin ? 'Workspace owner' : 'Traveler' }}</small>
+        </div>
+        <button class="icon-button" (click)="logout()" aria-label="Sign out">
+          <app-icon name="logout" />
+        </button>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="breadcrumb">
+          Workspace <span>/</span> <strong>{{ page() }}</strong>
+        </div>
+        <div class="topbar-right">
+          <span class="today">{{ today }}</span
+          ><span class="edition-dot">Personal workspace</span
+          ><button class="icon-button mobile-signout" (click)="logout()" aria-label="Sign out">
+            <app-icon name="logout" />
+          </button>
+        </div>
+      </header>
+      <main id="main-content"><router-outlet /></main>
+      <footer class="workspace-footer">
+        <span>waypoint. — Travel with intention.</span><span>Made for your next chapter.</span>
+      </footer>
+    </div>
+  </div>
+} @else {
+  <router-outlet />
+}
+@if (notices.message()) {
+  <div class="toast" role="status"><app-icon name="check" />{{ notices.message() }}</div>
+}

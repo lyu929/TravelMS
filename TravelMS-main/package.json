@@ -1,0 +1,70 @@
+{
+  "name": "waypoint",
+  "version": "1.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "node scripts/dev.cjs",
+    "frontend": "ng serve --host 127.0.0.1 --proxy-config proxy.conf.cjs",
+    "server": "node server.js",
+    "setup": "node scripts/setup-db.cjs",
+    "backup": "node scripts/backup-db.cjs",
+    "restore": "node scripts/restore-db.cjs",
+    "test:e2e": "npm run build && playwright test",
+    "test:all": "npm test && npm run test:e2e",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "npm run test:unit && npm run test:api",
+    "test:unit": "ng test --watch=false",
+    "test:api": "node --test --test-concurrency=1 tests/*.test.cjs",
+    "format": "prettier --write app backend scripts tests src *.js *.cjs *.json *.md",
+    "format:check": "prettier --check app backend scripts tests src *.js *.cjs *.json *.md"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "npm@11.8.0",
+  "dependencies": {
+    "@angular/common": "^21.1.0",
+    "@angular/compiler": "^21.1.0",
+    "@angular/core": "^21.1.0",
+    "@angular/forms": "^21.1.0",
+    "@angular/platform-browser": "^21.1.0",
+    "@angular/router": "^21.1.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.2",
+    "multer": "^2.4.0",
+    "mysql2": "^3.17.4",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.4.299",
+    "pdfkit": "^0.20.2",
+    "rxjs": "~7.8.0",
+    "sharp": "^0.35.5",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.1.4",
+    "@angular/cli": "^21.1.4",
+    "@angular/compiler-cli": "^21.1.0",
+    "@playwright/test": "^1.63.0",
+    "jsdom": "^27.1.0",
+    "prettier": "^3.9.9",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  },
+  "description": "A personal travel workspace with approvals, expenses and reports.",
+  "overrides": {
+    "@modelcontextprotocol/sdk": "^1.30.2"
+  }
+}

@@ -45,35 +45,9 @@ Thumbs.db
 
 # Environment variables
 .env
+.local/
+test-results/
+playwright-report/
 
 # Claude local config
 .claude/
-
-# Waypoint publication rules
-# Local configuration and private data (at any project depth)
-.env
-.env.*
-!.env.example
-.local/
-*.pem
-*.key
-
-# Reproducible dependencies, builds and test artifacts
-node_modules/
-dist/
-.angular/
-coverage/
-test-results/
-playwright-report/
-npm-debug.log*
-yarn-error.log*
-
-# Machine-specific files
-.DS_Store
-Thumbs.db
-.claude/
-.codex/
-
-# Historical inspection screenshots; current Waypoint evidence is included
-/review-evidence/reports.jpg
-/review-evidence/trips.jpg

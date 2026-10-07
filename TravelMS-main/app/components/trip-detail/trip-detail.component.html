@@ -1,0 +1,488 @@
+<section class="page detail-page">
+  <a class="small-link back-link" routerLink="/trips"><app-icon name="back" />All trips</a>
+  @if (error) {
+    <div class="error" role="alert">
+      <app-icon name="alert" />{{ error
+      }}<button class="text-button" (click)="load()" [disabled]="busy">Refresh</button>
+    </div>
+  }
+  @if (loading) {
+    <div class="loading-state">Bringing your journey together…</div>
+  }
+  @if (detail; as data) {
+    <div class="page-heading detail-heading">
+      <div>
+        <div class="eyebrow">JOURNEY {{ data.trip.trip_id?.toString()?.padStart(3, '0') }}</div>
+        <h1>{{ data.trip.destination }}<span class="title-dot">.</span></h1>
+        <p>
+          {{ date(data.trip.start_date) }} — {{ date(data.trip.end_date) }} ·
+          {{ data.trip.user_name }}
+        </p>
+      </div>
+      <div class="detail-header-actions">
+        <span class="badge status-{{ data.trip.status.toLowerCase() }}">{{
+          tripLabel(data.trip.status)
+        }}</span>
+        @if (auth.isAdmin) {
+          <app-trip-review [trip]="data.trip" (changed)="load()" />
+        }
+        @if (auth.isAdmin || ['PLANNED', 'REJECTED'].includes(data.trip.status)) {
+          <a
+            class="button secondary"
+            routerLink="/trips"
+            [queryParams]="{ edit: data.trip.trip_id }"
+            ><app-icon name="edit" />Edit trip</a
+          >
+        }
+      </div>
+    </div>
+    <div class="detail-tabs" role="tablist" aria-label="Trip sections">
+      @for (name of tabs; track name; let i = $index) {
+        <button
+          type="button"
+          role="tab"
+          [id]="'trip-tab-' + i"
+          [class.active]="tab === name"
+          [attr.aria-selected]="tab === name"
+          [attr.tabindex]="tab === name ? 0 : -1"
+          aria-controls="trip-panel"
+          (click)="tab = name"
+          (keydown)="tabKey($event, i)"
+        >
+          {{ name }}
+          @if (name === 'Itinerary') {
+            <span>{{ data.itinerary.length }}</span>
+          }
+        </button>
+      }
+    </div>
+    <div
+      id="trip-panel"
+      role="tabpanel"
+      [attr.aria-labelledby]="'trip-tab-' + tabs.indexOf(tab)"
+      class="detail-content"
+    >
+      @if (tab === 'Overview') {
+        <div class="detail-grid">
+          <div>
+            <section class="panel detail-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>The plan</h2>
+                  <p>The essentials for your journey.</p>
+                </div>
+                <app-icon name="compass" />
+              </div>
+              <dl class="trip-facts">
+                <div>
+                  <dt>Destination</dt>
+                  <dd>{{ data.trip.destination }}</dd>
+                </div>
+                <div>
+                  <dt>Traveler</dt>
+                  <dd>{{ data.trip.user_name }}</dd>
+                </div>
+                <div>
+                  <dt>Dates</dt>
+                  <dd>{{ date(data.trip.start_date) }} — {{ date(data.trip.end_date) }}</dd>
+                </div>
+                <div>
+                  <dt>Purpose</dt>
+                  <dd>{{ data.trip.purpose || 'No purpose added yet.' }}</dd>
+                </div>
+              </dl>
+              <div class="detail-shortcuts">
+                <button class="secondary" (click)="tab = 'Itinerary'">
+                  <app-icon name="calendar" />Plan your days</button
+                ><button class="secondary" (click)="tab = 'Activity'">
+                  <app-icon name="clock" />Review activity
+                </button>
+              </div>
+            </section>
+            <section class="panel detail-panel overview-next">
+              <div class="panel-heading">
+                <div>
+                  <h2>Your next steps</h2>
+                  <p>Make the most of this trip.</p>
+                </div>
+              </div>
+              <div class="detail-shortcuts">
+                @if (itineraryEditable) {
+                  <button class="secondary" (click)="openItem()">
+                    <app-icon name="plus" />Add itinerary item
+                  </button>
+                }
+                @if (expenseEligible) {
+                  <a
+                    class="button secondary"
+                    routerLink="/expenses"
+                    [queryParams]="{ new: 1, trip: id }"
+                    ><app-icon name="expenses" />Add expense</a
+                  ><button class="secondary" (click)="tab = 'Reports'">View reports</button>
+                } @else {
+                  <p class="field-hint">
+                    Expenses and reports become available after the trip is approved.
+                  </p>
+                }
+              </div>
+            </section>
+          </div>
+          <section class="panel detail-panel budget-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Your travel budget</h2>
+                <p>Every detail adds up.</p>
+              </div>
+              <span class="subtle-label">USD</span>
+            </div>
+            <div class="budget-panel-body">
+              <app-budget [trip]="data.trip" />
+              <div class="budget-detail-total">
+                <strong>{{ counted(data.expenses.length, 'expense') }}</strong
+                ><span>Recorded for this journey</span>
+              </div>
+            </div>
+          </section>
+        </div>
+        @if (latestReview; as event) {
+          <section class="latest-review">
+            <app-icon name="clock" />
+            <div>
+              <strong>{{ eventLabel(event) }}</strong>
+              <p>{{ event.actor_name }} · {{ eventTime(event.created_at) }}</p>
+              @if (event.comment) {
+                <blockquote>{{ event.comment }}</blockquote>
+              }
+            </div>
+            <button class="text-button" (click)="tab = 'Activity'">All activity</button>
+          </section>
+        }
+      }
+      @if (tab === 'Itinerary') {
+        <div class="section-actions">
+          <div>
+            <h2>Your days, thoughtfully planned.</h2>
+            <p>Activities, transport, accommodation and the little notes.</p>
+          </div>
+          @if (itineraryEditable) {
+            <button class="primary" (click)="openItem()" [disabled]="busy">
+              <app-icon name="plus" />Add item
+            </button>
+          }
+        </div>
+        @if (!itineraryEditable) {
+          <div class="info-note">
+            This {{ tripLabel(data.trip.status).toLowerCase() }} journey has a read-only itinerary.
+          </div>
+        }
+        @if (showForm) {
+          <section class="form-box itinerary-form">
+            <div class="form-heading">
+              <div>
+                <h2>{{ editId ? 'Refine the plan' : 'Make room for a moment' }}</h2>
+                <p>Add a detail for a day within your trip.</p>
+              </div>
+              <button
+                class="icon-button"
+                aria-label="Close itinerary form"
+                (click)="closeForm()"
+                [disabled]="busy"
+              >
+                <app-icon name="close" />
+              </button>
+            </div>
+            <form #itemForm="ngForm" (ngSubmit)="saveItem(itemForm.valid)">
+              <div class="form-row">
+                <label
+                  >Date<input
+                    name="item_date"
+                    type="date"
+                    [(ngModel)]="item.item_date"
+                    required
+                    [min]="data.trip.start_date"
+                    [max]="data.trip.end_date" /></label
+                ><label
+                  >Time (optional)<input
+                    name="start_time"
+                    type="time"
+                    [(ngModel)]="item.start_time"
+                /></label>
+              </div>
+              <div class="form-row">
+                <label
+                  >Type<select name="kind" [(ngModel)]="item.kind">
+                    @for (kind of kinds; track kind.value) {
+                      <option [value]="kind.value">{{ kind.label }}</option>
+                    }
+                  </select></label
+                ><label
+                  >Title<input
+                    name="title"
+                    [(ngModel)]="item.title"
+                    required
+                    maxlength="100"
+                    placeholder="A museum visit, a flight, a place to stay…"
+                    #title="ngModel"
+                  />
+                  @if (title.invalid && (title.touched || itemForm.submitted)) {
+                    <small class="field-error">Title is required.</small>
+                  }
+                </label>
+              </div>
+              <label
+                >Location (optional)<input
+                  name="location"
+                  [(ngModel)]="item.location"
+                  maxlength="200"
+                  placeholder="Where will it happen?"
+              /></label>
+              <label
+                >Notes (optional)<textarea
+                  name="notes"
+                  [(ngModel)]="item.notes"
+                  maxlength="2000"
+                  rows="3"
+                  placeholder="Reservations, reminders, or anything worth keeping."
+                ></textarea>
+              </label>
+              <div class="form-actions">
+                <button class="primary" type="submit" [disabled]="busy">
+                  {{ busy ? 'Saving…' : 'Save item' }}<app-icon name="check" /></button
+                ><button class="secondary" type="button" (click)="closeForm()" [disabled]="busy">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </section>
+        }
+        <div class="itinerary-days">
+          @for (day of days; track day.date) {
+            <section class="itinerary-day">
+              <h3><app-icon name="calendar" />{{ date(day.date) }}</h3>
+              <div class="day-items">
+                @for (entry of day.items; track entry.item_id) {
+                  <article class="itinerary-entry">
+                    <span class="itinerary-symbol"><app-icon [name]="kindIcon(entry.kind)" /></span>
+                    <div class="entry-body">
+                      <div class="entry-meta">
+                        {{ kindLabel(entry.kind) }} · {{ entry.start_time || 'Any time' }}
+                      </div>
+                      <h4>{{ entry.title }}</h4>
+                      @if (entry.location) {
+                        <p class="entry-location">
+                          <app-icon name="location" />{{ entry.location }}
+                        </p>
+                      }
+                      @if (entry.notes) {
+                        <p class="entry-notes">{{ entry.notes }}</p>
+                      }
+                    </div>
+                    @if (itineraryEditable) {
+                      <div class="row-actions">
+                        <button
+                          class="icon-button"
+                          [attr.aria-label]="'Edit ' + entry.title"
+                          (click)="openItem(entry)"
+                          [disabled]="busy"
+                        >
+                          <app-icon name="edit" /></button
+                        ><button
+                          class="icon-button danger"
+                          [attr.aria-label]="'Delete ' + entry.title"
+                          (click)="deleteItem(entry)"
+                          [disabled]="busy"
+                        >
+                          <app-icon name="trash" />
+                        </button>
+                      </div>
+                    }
+                  </article>
+                }
+              </div>
+            </section>
+          } @empty {
+            <div class="empty-state">
+              <app-icon name="calendar" />
+              <h3>A little structure. More room to explore.</h3>
+              <p>Add the first activity, journey or note to your itinerary.</p>
+            </div>
+          }
+        </div>
+      }
+      @if (tab === 'Expenses') {
+        <div class="section-actions">
+          <div>
+            <h2>The details that add up.</h2>
+            <p>Expenses recorded for {{ data.trip.destination }}.</p>
+          </div>
+          @if (expenseEligible) {
+            <a class="button primary" routerLink="/expenses" [queryParams]="{ new: 1, trip: id }"
+              ><app-icon name="plus" />Add expense</a
+            >
+          }
+        </div>
+        <section class="panel">
+          <div class="detail-budget-inline"><app-budget [trip]="data.trip" /></div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Expense</th>
+                  <th>Category</th>
+                  <th>Date</th>
+                  <th class="align-right">Amount</th>
+                  <th>Receipt</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (expense of data.expenses; track expense.expense_id) {
+                  <tr>
+                    <td>{{ expense.description || categoryLabel(expense.category) }}</td>
+                    <td>{{ categoryLabel(expense.category) }}</td>
+                    <td>{{ date(expense.expense_date) }}</td>
+                    <td class="amount align-right">{{ money(expense.amount) }}</td>
+                    <td>
+                      <app-receipt [expense]="expense" (changed)="load()" />
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="empty-cell">No expenses recorded for this trip yet.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="detail-shortcuts">
+            <a class="small-link" routerLink="/expenses"
+              >Manage expenses<app-icon name="arrow"
+            /></a>
+          </div>
+        </section>
+      }
+      @if (tab === 'Reports') {
+        <div class="section-actions">
+          <div>
+            <h2>The story, saved.</h2>
+            <p>Reports preserve the expenses as they were when generated.</p>
+          </div>
+          @if (expenseEligible) {
+            <button class="primary" (click)="generateReport()" [disabled]="busy">
+              <app-icon name="plus" />Create report
+            </button>
+          }
+        </div>
+        <div class="report-grid">
+          @for (report of data.reports; track report.report_id) {
+            <article class="report-card">
+              <div class="report-card-top">
+                <div>
+                  <h2>Report {{ report.report_id.toString().padStart(4, '0') }}</h2>
+                  <p>{{ date(report.generated_at) }} · {{ report.generated_by_name }}</p>
+                </div>
+                <span class="badge status-{{ report.report_status.toLowerCase() }}">{{
+                  reportLabel(report.report_status)
+                }}</span>
+              </div>
+              <div class="report-total">
+                <span>Total travel expenses</span
+                ><strong>{{ money(report.total_expenses) }}</strong>
+              </div>
+              <div class="report-actions">
+                <a
+                  class="button primary"
+                  [href]="'/api/reports/' + report.report_id + '/pdf'"
+                  download
+                  ><app-icon name="download" />Export PDF</a
+                >
+                <a
+                  class="button secondary"
+                  [href]="'/api/reports/' + report.report_id + '/export'"
+                  download
+                  ><app-icon name="download" />Export CSV</a
+                >
+                @if (report.report_status === 'GENERATED') {
+                  <button
+                    class="primary"
+                    (click)="reviewReport(report, 'SUBMITTED')"
+                    [disabled]="busy"
+                  >
+                    Submit
+                  </button>
+                }
+                @if (auth.isAdmin && report.report_status === 'SUBMITTED') {
+                  <button
+                    class="primary"
+                    (click)="reviewReport(report, 'APPROVED')"
+                    [disabled]="busy"
+                  >
+                    Approve report
+                  </button>
+                }
+              </div>
+            </article>
+          } @empty {
+            <div class="empty-state">
+              <app-icon name="reports" />
+              <h3>Every journey has a story.</h3>
+              <p>
+                {{
+                  expenseEligible
+                    ? 'Create your first report from the current expenses.'
+                    : 'Reports become available after approval.'
+                }}
+              </p>
+            </div>
+          }
+        </div>
+      }
+      @if (tab === 'Activity') {
+        <div class="section-actions">
+          <div>
+            <h2>Every step, remembered.</h2>
+            <p>Submission, review decisions and changes to your plan.</p>
+          </div>
+        </div>
+        <ol class="activity-list">
+          @for (event of data.history; track event.event_id) {
+            <li>
+              <span class="activity-dot"
+                ><app-icon
+                  [name]="
+                    event.to_status === 'REJECTED'
+                      ? 'edit'
+                      : event.to_status === 'APPROVED'
+                        ? 'check'
+                        : 'clock'
+                  "
+              /></span>
+              <article>
+                <div class="activity-meta">
+                  <strong>{{ eventLabel(event) }}</strong
+                  ><time>{{ eventTime(event.created_at) }}</time>
+                </div>
+                <p>
+                  {{ event.actor_name }} · {{ event.actor_role === 'ADMIN' ? 'Owner' : 'Traveler' }}
+                </p>
+                @if (event.from_status && event.from_status !== event.to_status) {
+                  <div class="activity-transition">
+                    {{ tripLabel(event.from_status) }}<app-icon name="arrow" />{{
+                      tripLabel(event.to_status!)
+                    }}
+                  </div>
+                }
+                @if (event.comment) {
+                  <blockquote>{{ event.comment }}</blockquote>
+                }
+              </article>
+            </li>
+          } @empty {
+            <li class="activity-empty">
+              New submissions, reviews and updates will appear here as they happen.
+            </li>
+          }
+        </ol>
+      }
+    </div>
+  }
+</section>

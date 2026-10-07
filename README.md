@@ -1,172 +1,79 @@
-# Travel Management System (TMS)
+# Waypoint · Personal Travel Workspace
 
-## Project Overview
-The Travel Management System (TMS) is a full-stack web application designed to streamline the travel management lifecycle, including trip planning, itinerary management, expense tracking, approvals, and reporting.
+Waypoint 是基于 TravelMS 软件工程课程项目完善的个人版本，保留 Angular、Express 和 MySQL 架构，提供英文界面、个人设置、每日行程、预算提醒、审批记录、费用登记和报表导出。
 
-The system provides role-based functionality for users and administrators through an integrated Angular frontend, Node.js/Express backend, and MySQL database.
+本仓库保留原课程项目的 `frontend/`、`backend/` 和提交历史；**当前完整个人版本在 `TravelMS-main/`，请使用下面的启动方法。** 原课程首页保存为 [课程原版说明](docs/TRAVELMS_COURSE_BASELINE.md)，GitHub 克隆与更新步骤见 [GITHUB_GUIDE.md](GITHUB_GUIDE.md)。
 
-## Live Application
-Deployed Application:  
-https://travel-ms-swe.vercel.app/
+你可以独自在一台电脑上运行，通过切换 Owner 和 Traveler 两个演示账户展示完整流程。
 
----
+## 在这台 Mac 上启动
 
-# Features
+MySQL 服务需要保持运行。现有 `.env` 已保留，不需要重新填写密码或删除数据库。
 
-## User Features
-- User Registration and Login
-- Secure Authentication
-- Plan Trips
-- Create and Manage Itineraries
-- Track Travel Expenses
-- View Trips
-- Budget Monitoring
-
-## Admin Features
-- Manage Users
-- Approve or Reject Trips
-- Generate Reports
-- View Travel Analytics
-
-## Additional Features
-- Search and Filtering
-- Role-Based Access Control
-- Session Management
-- Cloud Database Integration
-- Responsive User Interface
-
----
-
-# Tech Stack
-
-## Frontend
-- Angular
-- TypeScript
-- HTML
-- CSS
-
-## Backend
-- Node.js
-- Express.js
-
-## Database
-- MySQL
-- Railway (Cloud Hosted)
-
-## Deployment
-- Vercel (Frontend)
-- Cloud Hosted Backend
-- Railway MySQL
-
----
-
-# Project Structure
-
-```text
-project-root/
-├── frontend/
-│   ├── src/app/components/
-│   ├── src/app/services/
-│   ├── src/app/pages/
-│   └── routing/
-├── backend/
-│   ├── routes/
-│   ├── controllers/
-│   ├── models/
-│   ├── middleware/
-│   └── server.js
-└── database/
-    └── schema.sql
+```sh
+cd TravelMS-main
+npm start
 ```
 
-## Installation and Local Setup
+打开 <http://127.0.0.1:4200>。这一条命令会一起启动前端和后端；关闭时按 `Control + C`。
 
-### Prerequisites
-- Node.js
-- npm
-- Angular CLI
-- MySQL
+## 新电脑首次安装
 
-### Database Setup
-Run:
-```sql
-schema.sql
-```
+1. 安装并启动 MySQL，以及 Node.js 22.12+ 或受 Angular 21 支持的更新版本。
+2. 进入 `TravelMS-main`，执行 `npm ci`。
+3. 把 `.env.example` 复制为 `.env`，填写自己的 MySQL 连接信息。默认数据库名为 `travelms`。
+4. 执行 `npm run setup -- --demo` 初始化/升级数据库并创建演示账户。
+5. 执行 `npm start`，打开 <http://127.0.0.1:4200>。
 
-### Backend Setup
-```bash
-cd backend
-npm install
-node server.js
-```
+初始化会先把已有业务记录备份到 `TravelMS-main/.local/backups/`，随后保留记录并升级表结构。重复执行不会重置已有账户密码，也不会重复插入相同的示例行程。
 
-### Frontend Setup
-```bash
-cd frontend
-npm install
-ng serve
-```
+## 演示账户
 
-Local URL:
-http://localhost:4200
+| 角色                | 邮箱                      | 新建演示账户的密码 |
+| ------------------- | ------------------------- | ------------------ |
+| Owner / 管理员      | `owner@waypoint.local`    | `Waypoint2026!`    |
+| Traveler / 普通用户 | `traveler@waypoint.local` | `Waypoint2026!`    |
 
-## Environment Variables
-```env
-DB_HOST=
-DB_USER=
-DB_PASSWORD=
-DB_NAME=
-API_PORT=
-```
+登录页的 Owner demo / Traveler demo 按钮可直接登录已初始化的演示账户。这些是本机课程演示账户；如修改了密码，使用正常登录表单即可。
 
-## Major API Endpoints
-- POST /register
-- POST /login
-- GET/POST/PUT /trips
-- GET/POST/PUT /expenses
-- GET /reports
-- PUT /approve-trip
+## 课程展示流程
 
-## Testing
-Covers:
-- Registration/Login
-- Trip Creation
-- Expense Tracking
-- Admin Approval Workflow
-- Reporting
-- Edge cases and validation
-- Full integration testing
+1. Traveler 登录，在 **Trips** 创建行程，填写日期和预算。
+2. 打开行程的 **View journey**，在 **Itinerary** 添加活动、交通、住宿或备注。
+3. 退出后以 Owner 登录，批准行程，或用 **Revise** 填写修改原因。双方可在行程 **Activity** 查看审批意见和历史。
+4. Traveler 重新登录，在行程详情添加已批准行程的费用。保存后从 **Receipt** 列上传 PNG/JPEG/PDF 票据并预览，单个文件不超过 5 MB。预算使用达到 80% 会提醒，超支会显示具体金额。
+5. 在行程 **Reports** 或主导航 **Reports** 生成报表，下载 PDF/CSV，并提交报表；Owner 批准已提交报表。PDF 包含行程、分类汇总、费用明细和生成时已记录的行程审批意见。
+6. 在 **Settings** 修改姓名、电话、图标头像；修改密码需输入当前密码，其他登录会话会失效。
 
-## Deployment
-Production deployment supports:
-Frontend ↔ Backend APIs ↔ Cloud MySQL Database
+也可以使用现有示例。Vancouver 行程包含每日安排、退回和再次批准的记录，以及 $120 费用/$100 预算的超支情境；Portland 包含已批准报表。所有界面文字为英文，金额统一为 USD。
 
-Live URL:
-https://travel-ms-swe.vercel.app/
+## 已完成的修复
 
-## Challenges Addressed
-- Frontend-backend integration
-- Cloud database connectivity
-- Role-based admin workflows
-- Query optimization
-- Validation and error handling
+- 统一行程状态、五种费用类别和报表状态，恢复审批和编辑按钮。
+- 由后端验证登录身份、管理员角色和数据归属，普通用户仅能读取和修改自己的数据。
+- 使用有期限的服务端会话和 HttpOnly Cookie，移除依赖浏览器存储角色的登录方式。
+- 校验日期、金额、邮箱、密码和费用归属，返回明确的业务错误。
+- 报表保存费用快照，支持生成、提交、批准和 PDF/CSV 导出；票据支持私有上传、预览、替换、下载与删除。
+- 使用保留记录的数据库升级脚本和带哈希密码的演示账户，移除默认管理员密码入口。
+- 个人设置、行程详情与每日安排、预算提醒、带意见的审批与操作时间线均已接入。
+- 登录后恢复行程详情/设置页；提供独立数据库的接口测试和完整自动化浏览器流程。
+- 增加一致性备份与恢复工具，恢复到新数据库，保留密码哈希与票据内容，当前数据库保持不变。
+- 重新设计英文登录页、总览、导航、行程、费用、报表和用户页面，适配窄屏。
 
-## Future Enhancements
-- Group collaboration enhancements
-- Budget alerts and notifications
-- Expanded reporting dashboards
-- Map API integrations
-- Mobile feature expansion
+历史记录从本次升级后的操作开始积累，没有为旧行程虚构过去的审批。头像为内置图标；邮件找回密码、地图和多币种尚未实现。
 
-## Team Members
-- Dhanush Annoji
-- Sanaul Haque
-- Anjali Bhave
-- Nishad Sudhagar
-- Haolin Lyu
+## 备份、恢复与课程材料
 
-## Repository
-https://github.com/2u5hi/TravelMS_
+在 `TravelMS-main` 执行 `npm run backup` 可手动备份。运行 `npm run restore -- --help` 查看恢复方法；恢复只允许一个新的数据库名，并且不会自动修改 `.env`。详细步骤见开发说明。
 
-## Conclusion
-The Travel Management System is a fully implemented and deployed full-stack application demonstrating integrated frontend, backend, and database functionality while satisfying project requirements.
+课程材料已整理为英文：
+
+- [COURSE_PROJECT.md](COURSE_PROJECT.md)：需求、角色、用例、架构、数据库关系与状态流程图。
+- [TEST_REPORT.md](TEST_REPORT.md)：测试范围、结果与数据隔离说明。
+- [DEMO_GUIDE.md](DEMO_GUIDE.md)：5-7 分钟展示流程和讲解参考。
+
+课程材料描述实际实现，具体提交格式仍需对照老师的评分要求。
+
+完整启动、结构和限制说明见 [开发说明](TravelMS-main/README.md)，改造记录见 [PROJECT_NOTES.md](PROJECT_NOTES.md)。[最初的检查报告](LOCAL_RUN_REVIEW.md) 保留为历史记录。
+
+完整个人版本用于更新私有仓库 [lyu929/TravelMS](https://github.com/lyu929/TravelMS)。`.env`、本地备份、依赖和构建产物都被 Git 忽略；真实账户和数据库内容不随代码上传。项目基于原课程代码扩展；展示时应说明原项目来源和自己完成的改造，保留适用的来源/许可信息。

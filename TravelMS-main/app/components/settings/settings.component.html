@@ -1,0 +1,164 @@
+<section class="page">
+  <div class="page-heading">
+    <div>
+      <div class="eyebrow">MAKE IT YOURS</div>
+      <h1>A workspace that feels like you<span class="title-dot">.</span></h1>
+      <p>Your profile, your preferences, your next chapter.</p>
+    </div>
+  </div>
+  @if (error) {
+    <div class="error" role="alert"><app-icon name="alert" />{{ error }}</div>
+  }
+  <div class="settings-grid">
+    <section class="form-box settings-panel">
+      <div class="form-heading">
+        <div>
+          <h2>Your profile</h2>
+          <p>These details belong to your signed-in account.</p>
+        </div>
+        <app-avatar [user]="profile" />
+      </div>
+      <form #profileForm="ngForm" (ngSubmit)="saveProfile(profileForm.valid)">
+        <div class="form-row">
+          <label
+            >First name<input
+              name="first_name"
+              [(ngModel)]="profile.first_name"
+              required
+              maxlength="50"
+              autocomplete="given-name"
+              #first="ngModel"
+            />
+            @if (first.invalid && (first.touched || profileForm.submitted)) {
+              <small class="field-error">First name is required.</small>
+            }
+          </label>
+          <label
+            >Last name<input
+              name="last_name"
+              [(ngModel)]="profile.last_name"
+              required
+              maxlength="50"
+              autocomplete="family-name"
+              #last="ngModel"
+            />
+            @if (last.invalid && (last.touched || profileForm.submitted)) {
+              <small class="field-error">Last name is required.</small>
+            }
+          </label>
+        </div>
+        <label
+          >Email address<input [value]="auth.user?.email" readonly type="email" /><small
+            class="field-hint"
+            >Your sign-in email. Contact an owner to change it.</small
+          ></label
+        >
+        <label
+          >Phone number (optional)<input
+            name="phone_number"
+            [(ngModel)]="profile.phone_number"
+            maxlength="20"
+            type="tel"
+            autocomplete="tel"
+        /></label>
+        <fieldset class="avatar-field">
+          <legend>Choose your avatar</legend>
+          <div class="avatar-options">
+            @for (avatar of avatars; track avatar.key) {
+              <button
+                type="button"
+                [class.selected]="profile.avatar_key === avatar.key"
+                [attr.aria-pressed]="profile.avatar_key === avatar.key"
+                (click)="profile.avatar_key = avatar.key"
+                [disabled]="busy"
+              >
+                <app-avatar
+                  [user]="{
+                    first_name: profile.first_name,
+                    last_name: profile.last_name,
+                    avatar_key: avatar.key,
+                  }"
+                /><span>{{ avatar.label }}</span>
+              </button>
+            }
+          </div>
+        </fieldset>
+        <div class="account-role">
+          <app-icon name="users" /><span>{{
+            auth.isAdmin ? 'Owner · Administrator access' : 'Traveler · Your trips and expenses'
+          }}</span>
+        </div>
+        <button class="primary" type="submit" [disabled]="busy">
+          {{ busy ? 'Saving…' : 'Save profile' }}<app-icon name="check" />
+        </button>
+      </form>
+    </section>
+    <section class="form-box settings-panel">
+      <div class="form-heading">
+        <div>
+          <h2>Change your password</h2>
+          <p>Confirm your current password to choose a new one.</p>
+        </div>
+        <app-icon name="lock" />
+      </div>
+      @if (passwordSaved) {
+        <div class="success-note" role="status">
+          Your password was changed. You are still signed in; other sessions were signed out.
+        </div>
+      }
+      <form #passwordForm="ngForm" (ngSubmit)="savePassword(passwordForm.valid)">
+        <label
+          >Current password<input
+            name="current_password"
+            [(ngModel)]="currentPassword"
+            [type]="showPasswords ? 'text' : 'password'"
+            required
+            autocomplete="current-password"
+        /></label>
+        <label
+          >New password<input
+            name="new_password"
+            [(ngModel)]="newPassword"
+            [type]="showPasswords ? 'text' : 'password'"
+            required
+            minlength="8"
+            autocomplete="new-password"
+            #newPass="ngModel"
+          />
+          @if (newPass.invalid && (newPass.touched || passwordForm.submitted)) {
+            <small class="field-error">Use at least 8 characters.</small>
+          }
+        </label>
+        <label
+          >Confirm new password<input
+            name="confirm_password"
+            [(ngModel)]="confirmPassword"
+            [type]="showPasswords ? 'text' : 'password'"
+            required
+            autocomplete="new-password"
+          />
+          @if (confirmPassword && confirmPassword !== newPassword) {
+            <small class="field-error">The passwords do not match.</small>
+          }
+        </label>
+        <button
+          type="button"
+          class="text-button password-toggle"
+          [attr.aria-pressed]="showPasswords"
+          (click)="showPasswords = !showPasswords"
+        >
+          {{ showPasswords ? 'Hide passwords' : 'Show passwords' }}
+        </button>
+        <p class="field-hint">
+          Use at least 8 characters. A password change signs out your other sessions.
+        </p>
+        <button type="submit" class="primary" [disabled]="busy">
+          {{ busy ? 'Saving…' : 'Update password' }}<app-icon name="lock" />
+        </button>
+      </form>
+      <p class="settings-help">
+        Forgot your current password? A workspace owner can reset it in People.
+      </p>
+    </section>
+  </div>
+</section>
