@@ -1,79 +1,79 @@
 # Waypoint · Personal Travel Workspace
 
-Waypoint 是基于 TravelMS 软件工程课程项目完善的个人版本，保留 Angular、Express 和 MySQL 架构，提供英文界面、个人设置、每日行程、预算提醒、审批记录、费用登记和报表导出。
+Waypoint is a personal extension of the TravelMS software engineering course project. It retains the Angular, Express and MySQL architecture and adds an English interface, profile settings, daily itineraries, budget alerts, review history, expense tracking and report exports.
 
-本仓库保留原课程项目的 `frontend/`、`backend/` 和提交历史；**当前完整个人版本在 `TravelMS-main/`，请使用下面的启动方法。** 原课程首页保存为 [课程原版说明](docs/TRAVELMS_COURSE_BASELINE.md)，GitHub 克隆与更新步骤见 [GITHUB_GUIDE.md](GITHUB_GUIDE.md)。
+This repository preserves the original course project's `frontend/`, `backend/` and commit history. **The complete current personal edition is in `TravelMS-main/`; use the startup instructions below.** The original course README is retained in [Course baseline](docs/TRAVELMS_COURSE_BASELINE.md). See [GITHUB_GUIDE.md](GITHUB_GUIDE.md) for cloning and updating the repository.
 
-你可以独自在一台电脑上运行，通过切换 Owner 和 Traveler 两个演示账户展示完整流程。
+One person can run the entire application on one computer and demonstrate the complete workflow by switching between the Owner and Traveler demo accounts.
 
-## 在这台 Mac 上启动
+## Start on this Mac
 
-MySQL 服务需要保持运行。现有 `.env` 已保留，不需要重新填写密码或删除数据库。
+Keep MySQL running. The existing `.env` configuration has been preserved; use its working connection details and existing database.
 
 ```sh
 cd TravelMS-main
 npm start
 ```
 
-打开 <http://127.0.0.1:4200>。这一条命令会一起启动前端和后端；关闭时按 `Control + C`。
+Open <http://127.0.0.1:4200>. This command starts both the frontend and backend. Press `Control + C` to stop them.
 
-## 新电脑首次安装
+## First installation on another computer
 
-1. 安装并启动 MySQL，以及 Node.js 22.12+ 或受 Angular 21 支持的更新版本。
-2. 进入 `TravelMS-main`，执行 `npm ci`。
-3. 把 `.env.example` 复制为 `.env`，填写自己的 MySQL 连接信息。默认数据库名为 `travelms`。
-4. 执行 `npm run setup -- --demo` 初始化/升级数据库并创建演示账户。
-5. 执行 `npm start`，打开 <http://127.0.0.1:4200>。
+1. Install and start MySQL, and install Node.js 22.12+ or a newer Angular 21-compatible version.
+2. Enter `TravelMS-main` and run `npm ci`.
+3. Copy `.env.example` to `.env` and fill in your own MySQL connection details. The default database name is `travelms`.
+4. Run `npm run setup -- --demo` to initialize or upgrade the database and create demo accounts.
+5. Run `npm start` and open <http://127.0.0.1:4200>.
 
-初始化会先把已有业务记录备份到 `TravelMS-main/.local/backups/`，随后保留记录并升级表结构。重复执行不会重置已有账户密码，也不会重复插入相同的示例行程。
+Setup first backs up existing business records to `TravelMS-main/.local/backups/`, then upgrades the schema while preserving those records. Repeated setup runs retain existing account passwords and avoid duplicate sample trips.
 
-## 演示账户
+## Demo accounts
 
-| 角色                | 邮箱                      | 新建演示账户的密码 |
-| ------------------- | ------------------------- | ------------------ |
-| Owner / 管理员      | `owner@waypoint.local`    | `Waypoint2026!`    |
-| Traveler / 普通用户 | `traveler@waypoint.local` | `Waypoint2026!`    |
+| Role                     | Email                     | Password for a newly seeded account |
+| ------------------------ | ------------------------- | ----------------------------------- |
+| Owner / Administrator    | `owner@waypoint.local`    | `Waypoint2026!`                     |
+| Traveler / Standard user | `traveler@waypoint.local` | `Waypoint2026!`                     |
 
-登录页的 Owner demo / Traveler demo 按钮可直接登录已初始化的演示账户。这些是本机课程演示账户；如修改了密码，使用正常登录表单即可。
+The login page's **Owner demo** and **Traveler demo** buttons sign in to these initialized sample accounts. These accounts are intended for local course demonstrations. After changing a demo account's password, use the regular sign-in form.
 
-## 课程展示流程
+## Course demonstration workflow
 
-1. Traveler 登录，在 **Trips** 创建行程，填写日期和预算。
-2. 打开行程的 **View journey**，在 **Itinerary** 添加活动、交通、住宿或备注。
-3. 退出后以 Owner 登录，批准行程，或用 **Revise** 填写修改原因。双方可在行程 **Activity** 查看审批意见和历史。
-4. Traveler 重新登录，在行程详情添加已批准行程的费用。保存后从 **Receipt** 列上传 PNG/JPEG/PDF 票据并预览，单个文件不超过 5 MB。预算使用达到 80% 会提醒，超支会显示具体金额。
-5. 在行程 **Reports** 或主导航 **Reports** 生成报表，下载 PDF/CSV，并提交报表；Owner 批准已提交报表。PDF 包含行程、分类汇总、费用明细和生成时已记录的行程审批意见。
-6. 在 **Settings** 修改姓名、电话、图标头像；修改密码需输入当前密码，其他登录会话会失效。
+1. Sign in as Traveler and create a trip in **Trips**, including travel dates and a budget.
+2. Open **View journey** and add activities, transport, accommodation or notes in **Itinerary**.
+3. Sign out and sign in as Owner. Approve the trip, or select **Revise** and provide a reason. Both roles can view decisions and history in **Activity**.
+4. Sign in as Traveler again and add expenses to the approved trip. After saving an expense, upload and preview a PNG, JPEG or PDF from its **Receipt** column. Each file may be up to 5 MB. Budget alerts begin at 80% usage; overspending displays the exact difference.
+5. Generate a report from the journey's **Reports** tab or the main **Reports** page. Export PDF/CSV and submit the report, then sign in as Owner to approve it. The PDF includes journey details, category totals, expense rows and trip review comments saved at report creation.
+6. Use **Settings** to edit your name, phone number and avatar icon. Password changes require the current password and revoke other sessions.
 
-也可以使用现有示例。Vancouver 行程包含每日安排、退回和再次批准的记录，以及 $120 费用/$100 预算的超支情境；Portland 包含已批准报表。所有界面文字为英文，金额统一为 USD。
+On the demonstration computer, Vancouver includes daily plans, a revision/resubmission history and USD 120 spending against a USD 100 budget. Portland includes an approved report. A fresh database instead seeds San Francisco, Seattle, New York and Austin; create the Vancouver example manually or privately restore your own backup. Git does not synchronize database records. All interface text is in English, and amounts use USD.
 
-## 已完成的修复
+## Completed improvements
 
-- 统一行程状态、五种费用类别和报表状态，恢复审批和编辑按钮。
-- 由后端验证登录身份、管理员角色和数据归属，普通用户仅能读取和修改自己的数据。
-- 使用有期限的服务端会话和 HttpOnly Cookie，移除依赖浏览器存储角色的登录方式。
-- 校验日期、金额、邮箱、密码和费用归属，返回明确的业务错误。
-- 报表保存费用快照，支持生成、提交、批准和 PDF/CSV 导出；票据支持私有上传、预览、替换、下载与删除。
-- 使用保留记录的数据库升级脚本和带哈希密码的演示账户，移除默认管理员密码入口。
-- 个人设置、行程详情与每日安排、预算提醒、带意见的审批与操作时间线均已接入。
-- 登录后恢复行程详情/设置页；提供独立数据库的接口测试和完整自动化浏览器流程。
-- 增加一致性备份与恢复工具，恢复到新数据库，保留密码哈希与票据内容，当前数据库保持不变。
-- 重新设计英文登录页、总览、导航、行程、费用、报表和用户页面，适配窄屏。
+- Consistent trip statuses, five expense categories and report statuses restore the approval and editing workflows.
+- The backend verifies authentication, administrator privileges and record ownership; standard users can access only their own business data.
+- Expiring server sessions and HttpOnly cookies replace reliance on browser-stored roles.
+- Dates, amounts, emails, passwords and expense ownership are validated, with clear business errors.
+- Saved expense snapshots support report generation, submission, approval and PDF/CSV export. Private receipts support upload, preview, replacement, download and removal.
+- Preserving database migrations and demo accounts with hashed passwords replace destructive setup and default-password fallback behavior.
+- Profile settings, trip details, daily planning, budget alerts, review comments and activity timelines are connected to the backend.
+- Sign-in returns to the requested journey or Settings page. API and browser workflow tests use isolated databases.
+- Consistent backups and recovery into a new database preserve password hashes and receipt bytes while leaving the active database unchanged.
+- Redesigned login, overview, navigation, trip, expense, report and user pages support desktop and narrow screens.
 
-历史记录从本次升级后的操作开始积累，没有为旧行程虚构过去的审批。头像为内置图标；邮件找回密码、地图和多币种尚未实现。
+Activity history records new actions after the upgrade; older approval events are not invented. Avatars use built-in icons. Email password reset, maps and multiple currencies are not implemented.
 
-## 备份、恢复与课程材料
+## Backups, recovery and course materials
 
-在 `TravelMS-main` 执行 `npm run backup` 可手动备份。运行 `npm run restore -- --help` 查看恢复方法；恢复只允许一个新的数据库名，并且不会自动修改 `.env`。详细步骤见开发说明。
+Run `npm run backup` from `TravelMS-main` to create a private backup. Run `npm run restore -- --help` for recovery instructions. Recovery requires a new database name and does not automatically change `.env`. Detailed steps are in the app README.
 
-课程材料已整理为英文：
+Course materials are in English:
 
-- [COURSE_PROJECT.md](COURSE_PROJECT.md)：需求、角色、用例、架构、数据库关系与状态流程图。
-- [TEST_REPORT.md](TEST_REPORT.md)：测试范围、结果与数据隔离说明。
-- [DEMO_GUIDE.md](DEMO_GUIDE.md)：5-7 分钟展示流程和讲解参考。
+- [COURSE_PROJECT.md](COURSE_PROJECT.md): requirements, roles, use cases, architecture, database relationships and status diagrams.
+- [TEST_REPORT.md](TEST_REPORT.md): test coverage, results and database isolation.
+- [DEMO_GUIDE.md](DEMO_GUIDE.md): a 5–7 minute presentation workflow and speaking notes.
 
-课程材料描述实际实现，具体提交格式仍需对照老师的评分要求。
+These documents describe the implemented version. Confirm the required submission format against the instructor's rubric.
 
-完整启动、结构和限制说明见 [开发说明](TravelMS-main/README.md)，改造记录见 [PROJECT_NOTES.md](PROJECT_NOTES.md)。[最初的检查报告](LOCAL_RUN_REVIEW.md) 保留为历史记录。
+See the [App README](TravelMS-main/README.md) for installation, structure and limitations, and [PROJECT_NOTES.md](PROJECT_NOTES.md) for the development record. The [Initial inspection report](LOCAL_RUN_REVIEW.md) is retained as historical evidence.
 
-完整个人版本用于更新私有仓库 [lyu929/TravelMS](https://github.com/lyu929/TravelMS)。`.env`、本地备份、依赖和构建产物都被 Git 忽略；真实账户和数据库内容不随代码上传。项目基于原课程代码扩展；展示时应说明原项目来源和自己完成的改造，保留适用的来源/许可信息。
+The complete personal edition is included in the private [lyu929/TravelMS](https://github.com/lyu929/TravelMS) repository. Git ignores `.env`, local backups, dependencies and build output; real accounts and database contents remain local. Retain the original project's provenance and applicable attribution, and explain the personal extensions accurately when presenting.

@@ -815,9 +815,11 @@ test('PDF receipts reject malformed and active documents, can be replaced and ca
   assert.equal(deleted.total, 0);
 });
 test('PDF exports preserve saved report values, paginate and enforce access', async () => {
+  // Escaped non-Latin text preserves international font coverage in an English source file.
+  const unicodeDestination = '\u8bfe\u7a0b\u5c55\u793a - Montreal';
   const id = await createTrip(
     alice,
-    { destination: '课程展示 - Montreal', purpose: 'A saved report with Unicode names' },
+    { destination: unicodeDestination, purpose: 'A saved report with Unicode names' },
     true,
   );
   for (let n = 0; n < 28; n++)
@@ -851,7 +853,7 @@ test('PDF exports preserve saved report values, paginate and enforce access', as
   );
   const [[report]] = await pool.query('SELECT * FROM reports WHERE report_id=?', [reportId]);
   assert.equal(report.total_expenses, 280);
-  assert.equal(report.snapshot.trip.destination, '课程展示 - Montreal');
+  assert.equal(report.snapshot.trip.destination, unicodeDestination);
   await request('/expenses', 'POST', expenseData(id), alice);
   const [[unchanged]] = await pool.query(
     'SELECT total_expenses,snapshot FROM reports WHERE report_id=?',

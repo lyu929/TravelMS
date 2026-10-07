@@ -1,66 +1,78 @@
-# Waypoint 个人版本改造记录
+# Waypoint Personal Edition: Development Record
 
-完成日期：2026-10-06（America/Los_Angeles）。本次工作基于 TravelMS 现有课程代码和已有本地改动，保留技术栈，英文界面暂用 Waypoint 名称。
+Completed on October 6, 2026 (America/Los_Angeles). The work builds on the existing TravelMS course project and local changes, retains the original technology stack and uses the Waypoint name for the English personal edition.
 
-## 原检查问题的处理
+The results below describe each phase at completion. Earlier test counts and statements about unpublished changes are historical; later phases supersede them. See [TEST_REPORT.md](TEST_REPORT.md) for current validation results.
 
-| 原问题                                 | 现在的实现与验证                                                                        |
-| -------------------------------------- | --------------------------------------------------------------------------------------- |
-| 行程状态不一致，审批、编辑按钮消失     | 前后端统一大写状态；实际浏览器创建、审批成功                                            |
-| Flight / Hotel / Meals 无法登记        | 保留五种独立类别；五类均通过接口测试，餐饮通过浏览器保存                                |
-| 报表生成报数据库错误                   | GENERATED → SUBMITTED → APPROVED；浏览器生成、CSV 下载、提交、管理员批准成功            |
-| 后端未检查登录、角色和归属             | 服务端会话、HttpOnly Cookie、管理员检查和归属检查；未登录、角色伪造、跨用户读写测试通过 |
-| 初始化脚本矛盾且会删除数据             | 统一默认 travelms；先备份再迁移；演示账户使用 bcrypt 密码哈希                           |
-| 无效日期、金额、邮箱、缺失记录处理错误 | 服务端校验并返回明确错误，页面显示提示；对应回归测试通过                                |
-| 测试没有被发现、旧模板断言失败         | 修复测试范围；10 项前端测试、11 项 MySQL 接口测试通过                                   |
-| 界面缺少个人项目特点                   | 英文品牌、总览、真实统计、导航、旅行插图、行程卡片、费用表、报表卡片及窄屏布局          |
+## Phase 1: Original issues resolved
 
-## 本机验收
+| Original issue                                                                   | Implementation and verification                                                                                                                         |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inconsistent trip statuses hid approval and editing buttons.                     | Frontend and backend use consistent uppercase statuses; browser trip creation and approval succeeded.                                                   |
+| Flight, Hotel and Meals could not be recorded.                                   | Five distinct categories are supported; API tests covered all five and the browser saved a meal expense.                                                |
+| Report generation failed with a database error.                                  | Reports follow GENERATED → SUBMITTED → APPROVED; generation, CSV download, submission and administrator approval succeeded in the browser.              |
+| The backend did not verify authentication, roles or ownership.                   | Server sessions, HttpOnly cookies, administrator checks and ownership checks reject unauthenticated requests, forged roles and cross-user access.       |
+| Conflicting setup scripts could delete existing data.                            | The default database is consistently `travelms`; setup backs up data before migration, and demo passwords use bcrypt hashes.                            |
+| Invalid dates, amounts, emails and missing records produced incorrect responses. | Backend validation returns clear errors, the interface displays them and regression tests pass.                                                         |
+| Tests were not discovered and still asserted an old template.                    | Test discovery was repaired; 10 frontend tests and 11 MySQL API tests passed at this phase.                                                             |
+| The interface lacked a distinct personal identity.                               | English branding, overview statistics, navigation, travel illustrations, trip cards, expense tables, report cards and narrow-screen layouts were added. |
 
-- 一条 `npm start` 命令启动前端和后端，MySQL 保持独立运行。
-- `npm run build` 成功构建正式前端；21 项自动化测试通过，API 测试结束后清理隔离数据库。
-- 浏览器以 Owner 创建 Portland 演示行程并批准；Traveler 登记 $12.50 餐饮费用，生成快照报表、下载 CSV、提交；Owner 批准。
-- 检查桌面 1280px 和窄屏 390px 布局、刷新后会话恢复及退出操作。
-- 原来的 1 个用户、1 个行程保留；新增虚构演示账户和标有 Demo 的示例数据。迁移前备份位于 `TravelMS-main/.local/backups/`，已加入 Git 忽略。
+### Local acceptance
 
-页面截图保存在 `review-evidence/waypoint-dashboard.jpg`、`review-evidence/waypoint-trips.jpg`、`review-evidence/waypoint-mobile.jpg`。
+- One `npm start` command runs both frontend and backend; MySQL remains a separate service.
+- The production build succeeded and 21 automated tests passed. API test databases were removed afterward.
+- In the browser, Owner created and approved a fictional Portland trip. Traveler recorded a USD 12.50 meal expense, generated a snapshot report, downloaded CSV and submitted it; Owner approved it.
+- Desktop at 1280px and narrow screens at 390px were checked, along with session restoration after refresh and sign-out.
+- The original user and trip were preserved. Fictional demo accounts and records labeled Demo were added. Pre-migration backups are in the ignored `TravelMS-main/.local/backups/` folder.
 
-## 个人项目说明
+Screenshots: `review-evidence/waypoint-dashboard.jpg`, `waypoint-trips.jpg` and `waypoint-mobile.jpg`.
 
-第二轮功能扩展（2026-10-06）：
+## Phase 2: Personal features
 
-- 新增 Settings：姓名、电话、五种图标头像，以及验证当前密码的密码修改。密码修改刷新当前会话并撤销其他会话；使用隔离测试账户验证，原账户密码未修改。
-- 新增行程详情五个页签：Overview、Itinerary、Expenses、Reports、Activity。日程支持按日期排列的活动、交通、住宿、备注及增删改；后端校验日期范围和归属。
-- 新增预算提醒：达到 80% 提醒、超支显示差额，使用分计算避免金额误差；总览提供相关行程入口。
-- 审批支持意见，退回必须说明原因；记录操作人、状态变化、日程修改与时间。历史从新增操作开始记录，不回填虚构的旧事件。
-- 浏览器验证 Vancouver 演示行程的退回、补充日程、重新提交、批准；先登记 $85 触发提醒，再登记 $35 显示超支 $20，并从详情生成、提交和批准 $120 报表。
-- 与第二轮升级前备份逐字段核对，原有 3 个账户、6 个行程、10 笔费用、1 份报表均保留，原密码哈希未改变；独立测试数据库已全部清理。
-- 新增 5 项接口集成测试，合计 10 项前端 + 16 项接口测试；覆盖个人资料权限、密码会话撤销、日程归属与校验、审批记录和预算阈值。正式构建和桌面/390px 手机布局验收通过。
+Completed on October 6, 2026.
 
-新增截图位于 `review-evidence/waypoint-settings.jpg`、`review-evidence/waypoint-trip-detail.jpg`、`review-evidence/waypoint-itinerary.jpg`、`review-evidence/waypoint-activity.jpg`、`review-evidence/waypoint-detail-mobile.jpg`。
+- **Settings:** name, phone number, five avatar icons and password changes that verify the current password. A successful change rotates the current session and revokes other sessions. Isolated test accounts verified this behavior; the original account password was unchanged.
+- **Journey details:** Overview, Itinerary, Expenses, Reports and Activity tabs. Daily activities, transport, accommodation and notes support creation, editing and deletion. The backend checks dates and ownership.
+- **Budget alerts:** warnings begin at 80% usage; overspending shows the exact difference. Calculations use cents to avoid rounding errors, and Overview links to affected trips.
+- **Reviews and history:** returning a trip requires a reason. Events record the actor, comment, status changes, itinerary updates and time. History begins with new actions; no past events were fabricated.
+- **Browser walkthrough:** a fictional Vancouver trip was returned, given a revised itinerary, resubmitted and approved. A USD 85 expense triggered the budget warning; another USD 35 expense produced a USD 20 overrun. A USD 120 report was generated, submitted and approved from journey details.
+- **Preservation:** field-by-field comparison with the pre-phase backup confirmed that 3 accounts, 6 trips, 10 expenses, 1 report and existing password hashes were unchanged. Test databases were cleaned up.
+- **Verification:** five API tests were added, bringing this phase to 10 frontend and 16 API tests. They cover profile permissions, password session revocation, itinerary access and validation, review events and budget thresholds. The production build and desktop/390px layouts passed.
 
-当前能独立演示核心业务闭环。课程报告可围绕状态流转、权限隔离、输入校验、数据迁移、快照报表和响应式界面说明自己的设计与实现。
+Screenshots: `review-evidence/waypoint-settings.jpg`, `waypoint-trip-detail.jpg`, `waypoint-itinerary.jpg`, `waypoint-activity.jpg` and `waypoint-detail-mobile.jpg`.
 
-项目基于 TravelMS 改造，展示时应如实保留来源。若课程还要求 UML、需求追踪、团队分工、部署或特定导出格式，需要对照评分要求补充；本次未获得评分细则，因此未宣称全部课程交付物都已完成。
+The core business workflow could be demonstrated independently at this stage. Course explanations can focus on status transitions, access control, validation, migrations, snapshot reports and responsive design.
 
-第二轮结束时，实际订票、支付、邮件找回密码、上传票据、PDF 导出和公网部署尚未实现。票据和 PDF 在下方第三轮中完成。金额统一为 USD；此版本面向本机课程演示。
+The project retains its TravelMS provenance. The instructor's rubric was not provided, so additional requirements for UML notation, traceability, team contributions, deployment or submission formats still need to be checked.
 
-本次没有 Git commit、push、创建 PR 或公开发布。原始检查报告 `LOCAL_RUN_REVIEW.md` 记录的是改造前版本，不能用它判断当前功能。
+At the end of Phase 2, booking, payments, email password reset, receipt uploads, PDF export and public hosting were not implemented. Receipt uploads and PDF export were completed in Phase 3. This edition uses USD and is intended for local course demonstrations.
 
-## 第三轮完善与最终验证
+No commits, pushes, pull requests or public publication were made during Phases 1–2. `LOCAL_RUN_REVIEW.md` describes the version before these repairs and should not be used to assess current functionality.
 
-完成日期：2026-10-06（America/Los_Angeles）。
+## Phase 3: Completion and validation
 
-- 修复登录后的返回位置：Settings、行程详情等受保护页面登录后能返回原页面；非法地址和外部地址回到 Overview。
-- 完成私有票据：PNG/JPEG/PDF 上传、替换、预览、下载与删除；限制 5 MB，验证真实内容和归属，移除图片元数据，拒绝带脚本、主动操作或嵌入文件的 PDF。普通列表不返回文件内容。
-- PDF 票据使用应用自己的本地 PDF.js 预览，支持翻页和加载失败提示，修复部分浏览器内置预览空白的问题。预览组件按需加载，桌面与手机尺寸验收通过。
-- 完成 PDF 报表：行程信息、费用分类、明细、票据名称、生成时已有的行程审批意见与分页；费用和行程取生成时的快照，报表批准状态取当前保存状态。修复页脚导致的空白页面，并渲染检查中文换行和长表格。
-- 完成备份与恢复：一致性备份包含账户哈希、业务记录和票据；恢复只允许新数据库，不覆盖当前或已有数据库，不自动改 `.env`。实际恢复在隔离测试库验证，本机业务数据只进行了备份与恢复预检。
-- 新增独立浏览器流程测试，覆盖登录返回、个人设置、审批退回及再提交、日程、图片与 PDF 票据预览、导出、报表批准和 390px 布局。最终 12 项前端 + 20 项接口 + 2 项浏览器测试全部通过；正式构建初始资源 444.92 kB；格式及空白检查通过；最终依赖审计报告 0 个已知漏洞。
-- 与第三轮前备份逐字段核对：原有 3 个用户、7 个行程、12 笔费用、2 份报表和所有原密码哈希均未改变。本轮只为既有虚构 Vancouver 演示费用添加 1 张标明 Demo 的票据，并新增 1 份 $120 的快照报表。所有自动化测试库均已清理。
-- 最新私有备份：`TravelMS-main/.local/backups/travelms-1791352705496-ba3d71.json`；恢复预检通过。备份已忽略，不应公开上传。
-- 补齐英文课程材料：`COURSE_PROJECT.md`（需求、用例、状态、架构、ER、设计与来源说明）、`TEST_REPORT.md`（验证结果）和 `DEMO_GUIDE.md`（5–7 分钟演示脚本）。仍需对照老师实际评分细则检查格式要求。
+Completed on October 6, 2026 (America/Los_Angeles).
 
-最终样例 PDF：`TravelMS-main/output/pdf/waypoint-demo-report.pdf`。新增验收截图：`review-evidence/waypoint-receipt-preview.png`、`waypoint-receipt-mobile.png`、`waypoint-pdf-receipt-preview.png`、`waypoint-pdf-receipt-mobile.png`、`waypoint-pdf-reports.png`。
+- **Sign-in return page:** protected Settings and journey pages return to the requested location after sign-in. Invalid or external destinations fall back to Overview.
+- **Private receipts:** PNG/JPEG/PDF upload, replacement, preview, download and removal, with a 5 MB limit, content validation and ownership checks. Image metadata is removed; PDFs with scripts, active operations or embedded files are rejected. Ordinary lists return metadata instead of file bytes.
+- **PDF receipt preview:** a local PDF.js renderer provides page navigation and an error message if loading fails. It fixes blank previews caused by browser-dependent PDF viewing. The preview code loads on demand; desktop and mobile checks passed.
+- **PDF reports:** journey details, category totals, expense rows, receipt names, saved trip review comments and pagination. Trip and expense values come from the creation snapshot; report approval status reflects the current saved status. Footer-only blank pages were fixed, and rendered checks covered international text wrapping and long tables.
+- **Backup and recovery:** consistent backups include account hashes, business records and receipt bytes. Recovery accepts a new database only, leaves current and existing databases intact and does not change `.env`. Actual recovery was tested in an isolated database; the business database was only backed up and used for a recovery dry-run.
+- **Automated browser tests:** sign-in return behavior, profile settings, revisions and resubmission, itinerary, image/PDF previews, report export and approval, and 390px layouts. All 12 frontend, 20 API and 2 browser tests passed. The production build's initial assets totaled 444.92 kB. Formatting and whitespace checks passed; dependency auditing reported 0 known vulnerabilities at verification time.
+- **Preservation:** all original fields in 3 users, 7 trips, 12 expenses, 2 reports and their password hashes matched the pre-phase backup. This phase added one fictional Demo receipt to the existing Vancouver sample and one USD 120 snapshot report. All automated test databases were removed.
+- **Private backup:** `TravelMS-main/.local/backups/travelms-1791352705496-ba3d71.json` passed recovery validation. Backups are ignored and should remain private.
+- **English course documents:** `COURSE_PROJECT.md` covers requirements, use cases, statuses, architecture, ER relationships, design and provenance; `TEST_REPORT.md` records validation; `DEMO_GUIDE.md` provides a 5–7 minute presentation script. Submission details still need to be checked against the course rubric.
 
-当前功能面向本机独立课程演示。实际订票、支付、邮件找回密码、多币种和公网部署仍未实现。本轮同样没有提交或推送代码，也没有公开发布。
+Sample PDF: `TravelMS-main/output/pdf/waypoint-demo-report.pdf`.
+
+Screenshots: `review-evidence/waypoint-receipt-preview.png`, `waypoint-receipt-mobile.png`, `waypoint-pdf-receipt-preview.png`, `waypoint-pdf-receipt-mobile.png` and `waypoint-pdf-reports.png`.
+
+The version supports independent local course demonstrations. Booking, payments, email password reset, multiple currencies and public hosting remain outside its scope. No code was committed or pushed during Phase 3.
+
+## GitHub integration and English documentation
+
+The personal edition was subsequently added to the existing private `lyu929/TravelMS` repository on `master`, in commit `2c9c1119`. The original split course source and repository history were retained. Reproducible dependencies and build caches were removed from tracking. Real database records, local configuration and backups were excluded from the upload.
+
+The repository homepage, development record and historical inspection report have now been translated into English. Interface text, business messages and maintained source comments were already English. The international-text PDF test uses Unicode escapes to preserve its existing coverage while keeping the source readable in an English project.
+
+These latest language edits are local working changes. The user will review, commit and push them personally; no commit or push was performed for this language revision.
