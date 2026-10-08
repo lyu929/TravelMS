@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { databaseOptions, createPool } = require('../db');
 const { migrate } = require('../backend/schema');
 const { backup } = require('../backend/backups');
+const { assertDemoSeedingAllowed } = require('../backend/production-safety');
 
 async function seedDemo(pool) {
   const accounts = [
@@ -71,6 +72,7 @@ async function seedDemo(pool) {
   );
 }
 async function main() {
+  if (process.argv.includes('--demo')) assertDemoSeedingAllowed();
   const database = process.env.DB_NAME || 'travelms';
   if (!/^[a-zA-Z0-9_]+$/.test(database))
     throw new Error('DB_NAME must contain only letters, digits or underscores.');

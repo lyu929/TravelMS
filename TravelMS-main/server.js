@@ -3,17 +3,23 @@ const path = require('node:path');
 const express = require('express');
 const { createPool } = require('./db');
 const { createApp } = require('./backend/app');
+const { assertNoDemoAccounts } = require('./backend/production-safety');
 
 async function start() {
   const pool = createPool();
   try {
+    await assertNoDemoAccounts(pool);
     await pool.query('SELECT 1 FROM auth_sessions LIMIT 1');
     await pool.query('SELECT avatar_key FROM users LIMIT 1');
     await pool.query('SELECT 1 FROM itinerary_items LIMIT 1');
     await pool.query('SELECT 1 FROM trip_events LIMIT 1');
     await pool.query('SELECT 1 FROM expense_receipts LIMIT 1');
   } catch (error) {
-    console.error('Database is unavailable or needs setup. Check .env and run: npm run setup');
+    console.error(
+      error.code === 'DEMO_ACCOUNTS_IN_PRODUCTION'
+        ? error.message
+        : 'Database is unavailable or needs setup. Check .env and run: npm run setup',
+    );
     await pool.end();
     process.exitCode = 1;
     return;

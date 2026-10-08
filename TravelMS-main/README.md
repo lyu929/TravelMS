@@ -25,6 +25,11 @@ Open <http://127.0.0.1:4200>. `npm start` starts both the Angular frontend and E
 
 The login page has demo buttons for these local sample accounts. Existing passwords are preserved; after changing a demo password, use the regular sign-in form. Public registration always creates a traveler. Administrators manage accounts in **People**. Legacy accounts without a password hash cannot sign in with a fallback password; an administrator must assign a password through People.
 
+These are public local-demonstration credentials. Never reuse them for real accounts or real data.
+Set `NODE_ENV=production` for hosted deployments: demo seeding is then refused before database setup,
+and the server refuses to start while either local demo account remains in the database. Review and
+replace those accounts before deploying; the startup check does not delete or change existing data.
+
 ## A solo demonstration
 
 1. Sign in as Traveler and create a trip with valid dates and a budget.
